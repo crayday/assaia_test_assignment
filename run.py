@@ -1,23 +1,23 @@
-Desk = list[list[int]]
+Board = list[list[int]]
 
 dimention_x, dimention_y = 7, 6
 players_cnt = 2
 winning_length = 4
 
-desk = [
+board = [
     [0 for y in range(dimention_x)]
     for y in range(dimention_y)
 ]
 
 player_signs = [
     'x',
-    'y',
-    'z',
-    *[chr(char_number) for char_number in range(ord('a'), ord('x'))],
+    'o',
+    *[chr(char_number) for char_number in range(ord('a'), ord('o'))],
+    *[chr(char_number) for char_number in range(ord('p'), ord('x'))],
 ]
 
 
-def draw_desk(desk: Desk) -> str:
+def draw_board(board: Board) -> str:
     # Draw column number
     column_numbers = [str(number) for number in range(1, dimention_x+1)]
     image = '|'.join(column_numbers) + '\n'
@@ -26,7 +26,7 @@ def draw_desk(desk: Desk) -> str:
     image += '+'.join(['-'] * dimention_x) + '\n'
 
     # Draw rows one be one
-    for row in desk:
+    for row in board:
         image += '|'.join([draw_cell(cell) for cell in row]) + '\n'
 
     return image
@@ -39,9 +39,9 @@ def draw_cell(cell: int) -> int:
         return ' '
 
 
-def get_winner_number(desk: Desk) -> int:
+def get_winner_number(board: Board) -> int:
     # Check rows
-    for row in desk:
+    for row in board:
         for col in range(dimention_x - winning_length + 1):
             if all(
                 row[col]
@@ -54,30 +54,30 @@ def get_winner_number(desk: Desk) -> int:
     for col in range(dimention_x):
         for row in range(dimention_y - winning_length + 1):
             if all(
-                desk[row][col]
-                and desk[row][col] == desk[row + offset][col]
+                board[row][col]
+                and board[row][col] == board[row + offset][col]
                 for offset in range(winning_length)
             ):
-                return desk[row][col]
+                return board[row][col]
 
     # Check diagonals
     for row in range(dimention_y - winning_length + 1):
         for col in range(dimention_x - winning_length + 1):
             if all(
-                desk[row][col]
-                and desk[row][col] == desk[row + offset][col + offset]
+                board[row][col]
+                and board[row][col] == board[row + offset][col + offset]
                 for offset in range(winning_length)
             ):
-                return desk[row][col]
+                return board[row][col]
 
     for row in range(winning_length - 1, dimention_y):
         for col in range(dimention_x - winning_length + 1):
             if all(
-                desk[row][col]
-                and desk[row][col] == desk[row - offset][col + offset]
+                board[row][col]
+                and board[row][col] == board[row - offset][col + offset]
                 for offset in range(winning_length)
             ):
-                return desk[row][col]
+                return board[row][col]
 
     return 0  # No winner found
 
@@ -88,14 +88,14 @@ if __name__ == "__main__":
         for player_number in range(1, players_cnt+1):
             player_sign = player_signs[player_number - 1]
 
-            # Draw the desk
-            print(draw_desk(desk))
+            # Draw the board
+            print(draw_board(board))
 
             # Get player's input and place the ball
             while True:
                 print(
-                    f'Player {player_number} ({player_sign}) '
-                    f'input the column number to place a ball:',
+                    f'Player {player_number} ({player_sign}), '
+                    f'input the column number to place a ball: ',
                     end='',
                 )
 
@@ -109,8 +109,8 @@ if __name__ == "__main__":
                 found_place = False
                 try:
                     for j in reversed(range(dimention_y)):
-                        if not desk[j][column_number - 1]:
-                            desk[j][column_number - 1] = player_number
+                        if not board[j][column_number - 1]:
+                            board[j][column_number - 1] = player_number
                             found_place = True
                             break
                 except IndexError:
@@ -126,9 +126,9 @@ if __name__ == "__main__":
                 )
 
             # Check for a winning situation
-            if winner_number := get_winner_number(desk):
+            if winner_number := get_winner_number(board):
                 winner_sign = player_signs[winner_number - 1]
-                print(draw_desk(desk))
+                print(draw_board(board))
                 print(f"Player {winner_number} ({winner_sign}) win!")
                 game_finished = True
                 break
